@@ -1,0 +1,24 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "Generic_Interactive_System",
+	"Description": "Generic Interactive System",
+	"Category": "Other",
+	"CreatedBy": "Arthur Durand",
+	"CreatedByURL": "",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": true,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "Generic_Interactive_System",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}
