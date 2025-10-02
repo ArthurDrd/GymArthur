@@ -8,7 +8,7 @@ public class GymArthur : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "GameplayTags", "Generic_Interactive_System", "Niagara", "PhysicsCore"});
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "GameplayTags", "Generic_Interactive_System", "Niagara", "PhysicsCore", "MassEntity", "MassCommon", "MassCrowd"});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
