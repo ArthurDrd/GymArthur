@@ -4,16 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "MassProcessor.h"
-#include "GASimpleRandomMovementProcessor.generated.h"
-
-
+#include "GAMovementProcessor.generated.h"
 
 UCLASS()
-class GYMARTHUR_API UGASimpleRandomMovementProcessor : public UMassProcessor
+class GYMARTHUR_API UGAMovementProcessor : public UMassProcessor
 {
 	GENERATED_BODY()
 public:
-	UGASimpleRandomMovementProcessor();
+	UGAMovementProcessor();
 	
 protected:
 	virtual void ConfigureQueries(const TSharedRef<FMassEntityManager>& EntityManager) override;
