@@ -1,0 +1,3 @@
+// Copyright (c) 2025, Arthur Durand. All rights reserved.
+
+#include "Inputs/GATaggedInputComponent.h"
