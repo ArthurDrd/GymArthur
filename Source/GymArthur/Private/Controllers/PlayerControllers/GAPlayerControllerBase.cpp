@@ -36,8 +36,6 @@ void AGAPlayerControllerBase::SetupInputComponent()
 	// Bind the actions
 	TaggedInputComponent->BindActionByTag(InputConfig, TAG_Input_Move, ETriggerEvent::Triggered, this, &AGAPlayerControllerBase::InputMove);
 	TaggedInputComponent->BindActionByTag(InputConfig, TAG_Input_Zoom, ETriggerEvent::Triggered, this, &AGAPlayerControllerBase::InputZoom);
-	TaggedInputComponent->BindActionByTag(InputConfig, TAG_Input_Jump, ETriggerEvent::Triggered, this, &AGAPlayerControllerBase::InputJump);
-	TaggedInputComponent->BindActionByTag(InputConfig, TAG_Input_Crouch, ETriggerEvent::Triggered, this, &AGAPlayerControllerBase::InputCrouch);
 	TaggedInputComponent->BindActionByTag(InputConfig, TAG_Input_Sprint, ETriggerEvent::Triggered, this, &AGAPlayerControllerBase::InputSprint);
 }
 
@@ -61,33 +59,6 @@ void AGAPlayerControllerBase::InputMove(const FInputActionValue& InputActionValu
 void AGAPlayerControllerBase::InputZoom(const FInputActionValue& InputActionValue)
 {
 	// Empty for now
-}
-
-void AGAPlayerControllerBase::InputJump(const FInputActionValue& InputActionValue)
-{
-	if(AGACharacterBase* ControlledCharacter = Cast<AGACharacterBase>(GetCharacter()))
-	{
-		ControlledCharacter->Jump();
-	}
-}
-
-void AGAPlayerControllerBase::InputCrouch(const FInputActionValue& InputActionValue)
-{
-	AGACharacterBase* ControlledCharacter = Cast<AGACharacterBase>(GetCharacter());
-
-	if (!ControlledCharacter)
-	{
-		return;
-	}
-	
-	if (InputActionValue.Get<bool>())
-	{
-		ControlledCharacter->Crouch();
-	}
-	else
-	{
-		ControlledCharacter->UnCrouch();
-	}
 }
 
 void AGAPlayerControllerBase::InputSprint(const FInputActionValue& InputActionValue)

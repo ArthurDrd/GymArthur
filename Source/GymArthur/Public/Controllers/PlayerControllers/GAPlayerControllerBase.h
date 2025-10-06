@@ -43,18 +43,6 @@ protected:
 	void InputZoom(const FInputActionValue& InputActionValue);
 
 	/**
-	 * @brief : Jump
-	 * @param InputActionValue : Value of the input
-	 */
-	void InputJump(const FInputActionValue& InputActionValue);
-	
-	/**
-	 * @brief : Crouch
-	 * @param InputActionValue : Value of the input
-	 */
-	void InputCrouch(const FInputActionValue& InputActionValue);
-
-	/**
 	 * @brief : Sprint
 	 * @param InputActionValue : Value of the input
 	 */
