@@ -9,6 +9,7 @@
 #include "MassEntityManager.h"
 #include "MassMovementFragments.h"
 #include "MassNavigationFragments.h"
+#include "AI/Fragments/GAFragments.h"
 
 UGAMovementProcessor::UGAMovementProcessor(): EntityQuery(*this)
 {
@@ -22,6 +23,7 @@ void UGAMovementProcessor::ConfigureQueries(const TSharedRef<FMassEntityManager>
 	EntityQuery.AddRequirement<FTransformFragment>(EMassFragmentAccess::ReadOnly);
 	EntityQuery.AddRequirement<FMassMoveTargetFragment>(EMassFragmentAccess::ReadWrite);
 	EntityQuery.AddConstSharedRequirement<FMassMovementParameters>(EMassFragmentPresence::All);
+	EntityQuery.AddRequirement<FGATargetFragment>(EMassFragmentAccess::ReadOnly);
 }
 
 void UGAMovementProcessor::Execute(FMassEntityManager& EntityManager, FMassExecutionContext& Context)
@@ -30,6 +32,7 @@ void UGAMovementProcessor::Execute(FMassEntityManager& EntityManager, FMassExecu
 	{
 		const TConstArrayView<FTransformFragment> TransformsList = Context.GetFragmentView<FTransformFragment>();
 		const TArrayView<FMassMoveTargetFragment> NavTargetsList = Context.GetMutableFragmentView<FMassMoveTargetFragment>();
+		const TConstArrayView<FGATargetFragment> TargetsList = Context.GetFragmentView<FGATargetFragment>();
 		const FMassMovementParameters& MovementParams = Context.GetConstSharedFragment<FMassMovementParameters>();
 
 		for (int32 EntityIndex = 0; EntityIndex < Context.GetNumEntities(); ++EntityIndex)
@@ -37,19 +40,14 @@ void UGAMovementProcessor::Execute(FMassEntityManager& EntityManager, FMassExecu
 			const FTransform& Transform = TransformsList[EntityIndex].GetTransform();
 			FMassMoveTargetFragment& MoveTarget = NavTargetsList[EntityIndex];
 			
-			FVector CurrentLocation = Transform.GetLocation();
-			FVector TargetVector = MoveTarget.Center - Transform.GetLocation();
+			const FVector CurrentLocation = Transform.GetLocation();
+			
+			MoveTarget.Center = CurrentLocation;
+			FVector TargetVector = TargetsList[EntityIndex].Target - Transform.GetLocation();
 			TargetVector.Z = 0.f;
 			MoveTarget.DistanceToGoal = TargetVector.Size();
 			MoveTarget.Forward = TargetVector.GetSafeNormal();
-
-			if(MoveTarget.DistanceToGoal <=20.f || MoveTarget.Center == FVector::ZeroVector)
-			{
-				MoveTarget.Center  = FVector(FMath::RandRange(-1.f,1.f) * 1000.f, FMath::RandRange(-1.f,1.f) * 1000.f, CurrentLocation.Z);
-				MoveTarget.DistanceToGoal = (MoveTarget.Center - Transform.GetLocation()).Size();
-				MoveTarget.Forward = (MoveTarget.Center - Transform.GetLocation()).GetSafeNormal();
-				MoveTarget.DesiredSpeed =FMassInt16Real(MovementParams.DefaultDesiredSpeed);
-			}
+			MoveTarget.DesiredSpeed =FMassInt16Real(MovementParams.DefaultDesiredSpeed);
 		}
 	});
 }
