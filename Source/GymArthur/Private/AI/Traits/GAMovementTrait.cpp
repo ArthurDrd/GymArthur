@@ -3,9 +3,11 @@
 
 #include "AI/Traits/GAMovementTrait.h"
 #include "MassEntityTemplateRegistry.h"
-#include "AI/Fragments/GAFragments.h"
+#include "MassCommonFragments.h" 
+#include "MassNavigationFragments.h"
 
 void UGAMovementTrait::BuildTemplate(FMassEntityTemplateBuildContext& BuildContext, const UWorld& World) const
 {
-	BuildContext.AddFragment<FGATargetFragment>();
+	BuildContext.RequireFragment<FTransformFragment>();
+	BuildContext.RequireFragment<FMassMoveTargetFragment>();
 }

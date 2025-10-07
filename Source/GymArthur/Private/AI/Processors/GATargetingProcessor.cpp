@@ -17,7 +17,6 @@ UGATargetingProcessor::UGATargetingProcessor() : EntityQuery(*this)
 
 void UGATargetingProcessor::ConfigureQueries(const TSharedRef<FMassEntityManager>& EntityManager)
 {
-	EntityQuery.AddRequirement<FTransformFragment>(EMassFragmentAccess::ReadOnly);
 	EntityQuery.AddRequirement<FGATargetFragment>(EMassFragmentAccess::ReadWrite);
 }
 

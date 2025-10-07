@@ -6,7 +6,9 @@
 #include "MassCommonFragments.h"
 #include "MassCommonTypes.h"
 #include "MassExecutionContext.h"
-#include "AI/Fragments/GAFragments.h"
+#include "MassEntityManager.h"
+#include "MassMovementFragments.h"
+#include "MassNavigationFragments.h"
 
 UGAMovementProcessor::UGAMovementProcessor(): EntityQuery(*this)
 {
@@ -17,28 +19,37 @@ UGAMovementProcessor::UGAMovementProcessor(): EntityQuery(*this)
 
 void UGAMovementProcessor::ConfigureQueries(const TSharedRef<FMassEntityManager>& EntityManager)
 {
-	EntityQuery.AddRequirement<FTransformFragment>(EMassFragmentAccess::ReadWrite);
-	EntityQuery.AddRequirement<FGATargetFragment>(EMassFragmentAccess::ReadOnly);
+	EntityQuery.AddRequirement<FTransformFragment>(EMassFragmentAccess::ReadOnly);
+	EntityQuery.AddRequirement<FMassMoveTargetFragment>(EMassFragmentAccess::ReadWrite);
+	EntityQuery.AddConstSharedRequirement<FMassMovementParameters>(EMassFragmentPresence::All);
 }
 
 void UGAMovementProcessor::Execute(FMassEntityManager& EntityManager, FMassExecutionContext& Context)
 {
 	EntityQuery.ForEachEntityChunk( Context, [this](FMassExecutionContext& Context)
 	{
-		const TArrayView<FTransformFragment> TransformsList = Context.GetMutableFragmentView<FTransformFragment>();
-		const TArrayView<const FGATargetFragment> SimpleMovementsList =
-			Context.GetFragmentView<FGATargetFragment>();
-		const float WorldDeltaTime = Context.GetDeltaTimeSeconds();
+		const TConstArrayView<FTransformFragment> TransformsList = Context.GetFragmentView<FTransformFragment>();
+		const TArrayView<FMassMoveTargetFragment> NavTargetsList = Context.GetMutableFragmentView<FMassMoveTargetFragment>();
+		const FMassMovementParameters& MovementParams = Context.GetConstSharedFragment<FMassMovementParameters>();
 
 		for (int32 EntityIndex = 0; EntityIndex < Context.GetNumEntities(); ++EntityIndex)
 		{
-			FTransform& Transform = TransformsList[EntityIndex].GetMutableTransform();
-			const FVector& MoveTarget = SimpleMovementsList[EntityIndex].Target;
+			const FTransform& Transform = TransformsList[EntityIndex].GetTransform();
+			FMassMoveTargetFragment& MoveTarget = NavTargetsList[EntityIndex];
 			
 			FVector CurrentLocation = Transform.GetLocation();
-			FVector TargetVector = MoveTarget - CurrentLocation;
-			
-			Transform.SetLocation(CurrentLocation + TargetVector.GetSafeNormal() * 400.f * WorldDeltaTime);
+			FVector TargetVector = MoveTarget.Center - Transform.GetLocation();
+			TargetVector.Z = 0.f;
+			MoveTarget.DistanceToGoal = TargetVector.Size();
+			MoveTarget.Forward = TargetVector.GetSafeNormal();
+
+			if(MoveTarget.DistanceToGoal <=20.f || MoveTarget.Center == FVector::ZeroVector)
+			{
+				MoveTarget.Center  = FVector(FMath::RandRange(-1.f,1.f) * 1000.f, FMath::RandRange(-1.f,1.f) * 1000.f, CurrentLocation.Z);
+				MoveTarget.DistanceToGoal = (MoveTarget.Center - Transform.GetLocation()).Size();
+				MoveTarget.Forward = (MoveTarget.Center - Transform.GetLocation()).GetSafeNormal();
+				MoveTarget.DesiredSpeed =FMassInt16Real(MovementParams.DefaultDesiredSpeed);
+			}
 		}
 	});
 }
