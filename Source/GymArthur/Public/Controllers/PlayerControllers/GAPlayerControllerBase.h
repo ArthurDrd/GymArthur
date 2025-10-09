@@ -5,9 +5,9 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "InputMappingContext.h"
+#include "Characters/GACharacterBase.h"
 #include "Inputs/GAInputConfig.h"
 #include "GAPlayerControllerBase.generated.h"
-
 
 UCLASS()
 class GYMARTHUR_API AGAPlayerControllerBase : public APlayerController
@@ -47,4 +47,9 @@ protected:
 	 * @param InputActionValue : Value of the input
 	 */
 	void InputSprint(const FInputActionValue& InputActionValue);
+
+	private:
+
+	UPROPERTY()
+	AGACharacterBase* CachedCharacter = nullptr;
 };

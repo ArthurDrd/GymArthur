@@ -24,6 +24,8 @@ void AGAPlayerControllerBase::BeginPlay()
 		// Subsystem is valid : this is the local player
 		Subsystem->AddMappingContext(IMC, 0);
 	}
+
+	CachedCharacter = Cast<AGACharacterBase>(GetCharacter());
 }
 
 void AGAPlayerControllerBase::SetupInputComponent()
@@ -41,6 +43,8 @@ void AGAPlayerControllerBase::SetupInputComponent()
 
 void AGAPlayerControllerBase::InputMove(const FInputActionValue& InputActionValue)
 {
+	if (!CachedCharacter) return;
+	
 	const FVector2d MoveVector = InputActionValue.Get<FVector2d>();
 	if (MoveVector.SquaredLength() == 0) return;
 	
@@ -48,33 +52,30 @@ void AGAPlayerControllerBase::InputMove(const FInputActionValue& InputActionValu
 
 	const FVector ForwardDirection(FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X));
 	const FVector RightDirection(FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y));
-
-	if (APawn* ControlledPawn = GetPawn<APawn>())
-	{
-		ControlledPawn->AddMovementInput(ForwardDirection, MoveVector.Y);
-		ControlledPawn->AddMovementInput(RightDirection, -MoveVector.X);
-	}
+	
+	CachedCharacter->AddMovementInput(ForwardDirection, MoveVector.Y);
+	CachedCharacter->AddMovementInput(RightDirection, -MoveVector.X);
 }
 
 void AGAPlayerControllerBase::InputZoom(const FInputActionValue& InputActionValue)
 {
-	// Empty for now
+	if (!CachedCharacter) return;
+	
+	CachedCharacter->ChangeArmLenght(1000.f * InputActionValue.Get<float>());
 }
 
 void AGAPlayerControllerBase::InputSprint(const FInputActionValue& InputActionValue)
 {
-	AGACharacterBase* ControlledCharacter = Cast<AGACharacterBase>(GetCharacter());
-
-	if (!ControlledCharacter) return;
+	if (!CachedCharacter) return;
 	
 	if (InputActionValue.Get<bool>())
 	{
 		bIsSprinting = true;
-		ControlledCharacter->GetCharacterMovement()->MaxWalkSpeed = 800.f;
+		CachedCharacter->GetCharacterMovement()->MaxWalkSpeed = 800.f;
 	}
 	else
 	{
 		bIsSprinting = false;
-		ControlledCharacter->GetCharacterMovement()->MaxWalkSpeed = 600.f;
+		CachedCharacter->GetCharacterMovement()->MaxWalkSpeed = 600.f;
 	}
 }

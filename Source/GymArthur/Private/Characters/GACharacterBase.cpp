@@ -20,3 +20,9 @@ void AGACharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
 }
+
+void AGACharacterBase::ChangeArmLenght(const float Value)
+{
+	const float NewLenght = FMath::Clamp(SpringArm->TargetArmLength + Value, 1000, 5000.f);
+	SpringArm->TargetArmLength = FMath::FInterpTo(SpringArm->TargetArmLength, NewLenght, GetWorld()->GetDeltaSeconds(), 20.f);
+}

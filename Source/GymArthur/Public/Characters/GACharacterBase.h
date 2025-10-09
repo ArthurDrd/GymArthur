@@ -16,6 +16,9 @@ class GYMARTHUR_API AGACharacterBase : public ACharacter
 public:
 	AGACharacterBase();
 	
+	UFUNCTION()
+	void ChangeArmLenght(const float Value);
+	
 protected:
 	virtual void BeginPlay() override;
 

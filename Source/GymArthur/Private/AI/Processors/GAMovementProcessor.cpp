@@ -20,7 +20,7 @@ UGAMovementProcessor::UGAMovementProcessor(): EntityQuery(*this)
 
 void UGAMovementProcessor::ConfigureQueries(const TSharedRef<FMassEntityManager>& EntityManager)
 {
-	EntityQuery.AddRequirement<FTransformFragment>(EMassFragmentAccess::ReadOnly);
+	EntityQuery.AddRequirement<FTransformFragment>(EMassFragmentAccess::ReadWrite);
 	EntityQuery.AddRequirement<FMassMoveTargetFragment>(EMassFragmentAccess::ReadWrite);
 	EntityQuery.AddConstSharedRequirement<FMassMovementParameters>(EMassFragmentPresence::All);
 	EntityQuery.AddRequirement<FGATargetFragment>(EMassFragmentAccess::ReadOnly);
@@ -30,17 +30,20 @@ void UGAMovementProcessor::Execute(FMassEntityManager& EntityManager, FMassExecu
 {
 	EntityQuery.ForEachEntityChunk( Context, [this](FMassExecutionContext& Context)
 	{
-		const TConstArrayView<FTransformFragment> TransformsList = Context.GetFragmentView<FTransformFragment>();
+		const TArrayView<FTransformFragment> TransformsList = Context.GetMutableFragmentView<FTransformFragment>();
 		const TArrayView<FMassMoveTargetFragment> NavTargetsList = Context.GetMutableFragmentView<FMassMoveTargetFragment>();
 		const TConstArrayView<FGATargetFragment> TargetsList = Context.GetFragmentView<FGATargetFragment>();
 		const FMassMovementParameters& MovementParams = Context.GetConstSharedFragment<FMassMovementParameters>();
-
+		
 		for (int32 EntityIndex = 0; EntityIndex < Context.GetNumEntities(); ++EntityIndex)
 		{
 			const FTransform& Transform = TransformsList[EntityIndex].GetTransform();
 			FMassMoveTargetFragment& MoveTarget = NavTargetsList[EntityIndex];
 			
 			const FVector CurrentLocation = Transform.GetLocation();
+
+			// Rotate the entity to face the target
+			TransformsList[EntityIndex].SetTransform(FTransform(MoveTarget.Forward.Rotation(), CurrentLocation));
 			
 			MoveTarget.Center = CurrentLocation;
 			FVector TargetVector = TargetsList[EntityIndex].Target - Transform.GetLocation();
@@ -48,6 +51,8 @@ void UGAMovementProcessor::Execute(FMassEntityManager& EntityManager, FMassExecu
 			MoveTarget.DistanceToGoal = TargetVector.Size();
 			MoveTarget.Forward = TargetVector.GetSafeNormal();
 			MoveTarget.DesiredSpeed =FMassInt16Real(MovementParams.DefaultDesiredSpeed);
+
+			
 		}
 	});
 }
